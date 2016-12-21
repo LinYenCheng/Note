@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title> Note 2.4 </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link href="css/table.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- template for the grid component -->
+    <script type="text/x-template" id="grid-template">
+        <table>
+            <thead>
+                <tr>
+                    <th v-for="key in columns" @click="sortBy(key)" :class="{ active: sortKey == key }">
+                        {{ key | capitalize }}
+                        <span class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'"></span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(entry, index)  in filteredData">
+                    <td v-for="key in columns">
+                        {{entry[key].toString()}}
+                    </td>
+                    <td>
+                        <button v-on:click="edit(entry,index)">編輯</button>
+                        <button v-on:click="remove(entry)"> X </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </script>
+
+    <!-- template for the modal component -->
+    <script type="text/x-template" id="modal-template">
+        <transition name="modal">
+            <div class="modal-mask">
+                <div class="modal-wrapper">
+                    <div class="modal-container">
+                        <div class="pure-g">
+                            <div class="pure-u-1-4"><span>編號: </span><input v-model="entryModal.id"></div>
+                            <div class="pure-u-1-4"><span>姓名: </span><input v-model="entryModal.name"></div>
+                        </div>
+                        <br>
+                        <div class="pure-g">
+                            <div class="pure-u-1-3">
+                                <span>狀態一</span>
+                                <div v-for="item1 in status1s">
+                                    <input type="checkbox" id="status1" :value="item1" v-model="chkStatus1">
+                                    <label for="status1">{{item1}}</label>
+                                </div>
+                            </div>
+                            <div class="pure-u-1-3">
+                                <span>狀態二</span>
+                                <div v-for="item2 in status2s">
+                                    <input type="checkbox" id="status2" :value="item2" v-model="chkStatus2">
+                                    <label for="status2">{{item2}}</label>
+                                </div>
+                            </div>
+                            <div class="pure-u-1-3">
+                                <span>狀態三</span>
+                                <div v-for="item3 in status3s">
+                                    <input type="checkbox" id="status3" :value="item3" v-model="chkStatus3">
+                                    <label for="status3">{{item3}}</label>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="modal-float-button green-button" @click="$emit('close')" v-on:click="save()">  確定  </button>
+                        <br>
+                        <br>
+                    </div>
+                </div>
+            </div>
+        </transition>
+    </script>
+
+    <!-- template for the todo component -->
+    <script type="text/x-template" id="todo-template">
+        <div>
+            <input v-model="newStatus" v-on:keyup.enter="addStatus" placeholder="輸入後按 Enter">
+            <ul class="todo-list">
+                <li class="todo" :class="{ editing: todo == editedTodo }" v-for="(todo, index) in todos" style="list-style-type:none;margin-left: -35px;">
+                    <div class="view">
+                        <label @dblclick="editTodo(todo)">{{ todo }}</label>
+                        <button v-on:click="removeStatus(index)">X</button>
+                    </div>
+                    <input class="edit" type="text" v-model="todo" v-todo-focus="todo == editedTodo" @blur="doneEdit(todo,index)" @keyup.enter="doneEdit(todo,index)" @keyup.esc="cancelEdit(todo)">
+                    <!-- v-todo-focus="todo == editedTodo" -->
+                </li>
+            </ul>
+        </div>
+    </script>
+
+    <!-- demo root element -->
+    <div id="demo">
+        <input type="file" id="fileInput">
+        <button v-on:click="save()">存檔</button>
+        <a id="exportText"></a>
+        <button v-on:click="exportText()">輸出</button>
+        <br>
+        <hr>
+        <br>
+        <form id="search">
+            <span>搜尋 </span><input name="query" v-model="searchQuery" placeholder="輸入關鍵字">
+        </form>
+        <br>
+        <demo-grid :data="gridData" :columns="gridColumns" :filter-key="searchQuery" @sort="sortResult" @edit="editRow" @remove="removeRow"></demo-grid>
+        <br>
+        <button v-on:click="addrow()" class="green-button">新增一列</button>
+        <button v-on:click="clearchk()" class="gray-button">清除選擇</button>
+        <!-- use the modal component, pass in the prop -->
+        <modal v-if="showModal" @close="showModal = false" :status1s="status1" :status2s="status2" :status3s="status3"> </modal>
+        <br>
+        <hr>
+        <div class="pure-g">
+            <div class="pure-u-1-3">
+                <span>狀態1</span>
+                <br>
+                <todo :todos="status1" @change="changeStatus1"></todo>
+            </div>
+            <div class="pure-u-1-3">
+                <span>狀態2</span>
+                <br>
+                <todo :todos="status2" @change="changeStatus2"></todo>
+            </div>
+            <div class="pure-u-1-3">
+                <span>狀態3</span>
+                <br>
+                <todo :todos="status3" @change="changeStatus3"></todo>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/vue.min.js"></script>
+    <script src="js/grid.js"></script>
+    <script src="js/todos.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
