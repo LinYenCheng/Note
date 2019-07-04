@@ -4,6 +4,14 @@
     color: #444;
 }
 
+html {
+    background-color: #fff;
+}
+
+body {
+    background-color: #fff;
+}
+
 table {
     border: 2px solid #42b983;
     border-radius: 3px;
